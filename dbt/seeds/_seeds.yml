@@ -1,0 +1,25 @@
+version: 2
+
+seeds:
+  - name: seed_sydney_trains_routes
+    description: >
+      route_id -> line label for Sydney Trains, extracted from the
+      route_id/route_short_name/route_long_name columns of TfNSW's public
+      "Timetables Complete GTFS" static bundle (agency_id x0001), filtered
+      to Sydney Trains and manually snapshotted here. Route structure
+      changes rarely; refresh by re-downloading routes.txt and re-filtering
+      rather than by an automated daily pipeline.
+    columns:
+      - name: route_id
+        description: GTFS route identifier, matches route_id on the realtime feed.
+        tests:
+          - not_null
+          - unique
+      - name: route_short_name
+        description: "Public-facing line code, e.g. T1."
+        tests:
+          - not_null
+      - name: route_long_name
+        description: Full line name.
+        tests:
+          - not_null
