@@ -11,6 +11,9 @@ sources:
           ingestion/load_raw.py. The same (trip_id, stop_id) can appear many
           times across polls as its predicted/observed delay is updated.
         config:
+          meta:
+            dagster:
+              asset_key: ["raw", "trip_updates_snapshot"]
           loaded_at_field: poll_timestamp
           freshness:
             warn_after: { count: 30, period: minute }
