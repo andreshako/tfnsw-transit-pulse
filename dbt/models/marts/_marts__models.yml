@@ -8,20 +8,55 @@ models:
       own OTR definition: within 5 minutes (300 seconds) of the scheduled
       arrival, falling back to departure delay when arrival wasn't reported.
       Incremental, insert_overwrite on service_date with a 2-day lookback.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - service_date
+            - route_short_name
     columns:
       - name: service_date
         description: GTFS service date this row summarizes.
+        tests:
+          - not_null
       - name: route_short_name
         description: "Public-facing Sydney Trains line code, e.g. T1."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"]
       - name: route_long_name
         description: Full line name, carried through from the route seed.
+        tests:
+          - not_null
       - name: total_stop_events
         description: Count of deduped stop visits observed for this line/day.
+        tests:
+          - not_null
       - name: on_time_stop_events
         description: Stop visits with an observed delay within 5 minutes.
+        tests:
+          - not_null
       - name: late_stop_events
         description: Stop visits with an observed delay beyond 5 minutes.
+        tests:
+          - not_null
       - name: avg_delay_minutes
-        description: Mean delay in minutes across stop visits with delay data.
+        description: >
+          Mean delay in minutes across stop visits with delay data. Range
+          bounds are a sanity check, not a hard business rule: mildly
+          negative means running early, and the upper bound is generous
+          enough to allow for genuine major-incident days.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -30
+              max_value: 180
+              inclusive: true
       - name: pct_on_time
-        description: on_time_stop_events / (on_time_stop_events + late_stop_events).
+        description: >
+          on_time_stop_events / (on_time_stop_events + late_stop_events).
+          Null, not zero, when a line had no valid delay readings that day.
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
