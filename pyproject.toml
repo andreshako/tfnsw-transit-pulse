@@ -1,0 +1,27 @@
+[project]
+name = "tfnsw-transit-pulse"
+version = "0.1.0"
+description = "Sydney Trains on-time-running analytics pipeline: GTFS-RT -> BigQuery -> dbt -> Dagster"
+requires-python = ">=3.11"
+dependencies = [
+    "dagster>=1.8",
+    "dagster-dbt>=0.24",
+    "dbt-bigquery>=1.8",
+    "google-cloud-bigquery>=3.25",
+    "gtfs-realtime-bindings>=1.0",
+    "requests>=2.32",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "dagster-webserver>=1.8",
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["ingestion*", "orchestration*"]
