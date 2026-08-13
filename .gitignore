@@ -7,6 +7,9 @@ credentials*.json
 # personal prep notes -- never committed
 docs/LEARNING_NOTES.md
 
+# local Claude Code instructions -- not part of the portfolio repo
+CLAUDE.md
+
 # python
 __pycache__/
 *.pyc
