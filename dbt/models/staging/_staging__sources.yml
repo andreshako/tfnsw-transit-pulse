@@ -10,10 +10,11 @@ sources:
           trip-updates feed, one row per (poll, trip, stop) as ingested by
           ingestion/load_raw.py. The same (trip_id, stop_id) can appear many
           times across polls as its predicted/observed delay is updated.
-        loaded_at_field: poll_timestamp
-        freshness:
-          warn_after: { count: 30, period: minute }
-          error_after: { count: 90, period: minute }
+        config:
+          loaded_at_field: poll_timestamp
+          freshness:
+            warn_after: { count: 30, period: minute }
+            error_after: { count: 90, period: minute }
         columns:
           - name: trip_id
             description: GTFS trip identifier.

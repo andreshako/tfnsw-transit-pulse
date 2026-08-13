@@ -22,4 +22,5 @@ models:
         description: GTFS-RT StopTimeUpdate schedule_relationship enum.
         tests:
           - accepted_values:
-              values: ["SCHEDULED", "SKIPPED", "NO_DATA", "UNSCHEDULED"]
+              arguments:
+                values: ["SCHEDULED", "SKIPPED", "NO_DATA", "UNSCHEDULED"]
