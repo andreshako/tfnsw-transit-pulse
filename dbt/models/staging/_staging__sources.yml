@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: "{{ env_var('BQ_RAW_DATASET', 'raw') }}"
+    tables:
+      - name: trip_updates_snapshot
+        description: >
+          Append-only snapshots of the Sydney Trains GTFS-Realtime
+          trip-updates feed, one row per (poll, trip, stop) as ingested by
+          ingestion/load_raw.py. The same (trip_id, stop_id) can appear many
+          times across polls as its predicted/observed delay is updated.
+        loaded_at_field: poll_timestamp
+        freshness:
+          warn_after: { count: 30, period: minute }
+          error_after: { count: 90, period: minute }
+        columns:
+          - name: trip_id
+            description: GTFS trip identifier.
+          - name: route_id
+            description: GTFS route identifier (one per Sydney Trains line).
+          - name: start_date
+            description: GTFS service date for the trip, as YYYYMMDD.
+          - name: stop_id
+            description: GTFS stop identifier.
+          - name: stop_sequence
+            description: Position of this stop within the trip.
+          - name: arrival_delay_seconds
+            description: Predicted/observed arrival delay in seconds, signed.
+          - name: departure_delay_seconds
+            description: Predicted/observed departure delay in seconds, signed.
+          - name: schedule_relationship
+            description: GTFS-RT StopTimeUpdate schedule_relationship enum.
+          - name: poll_timestamp
+            description: When ingestion fetched this snapshot (UTC).
+          - name: feed_timestamp
+            description: When TfNSW generated the feed (UTC), from the feed header.

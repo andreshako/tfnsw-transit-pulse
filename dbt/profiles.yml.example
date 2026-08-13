@@ -1,0 +1,25 @@
+# Copy the relevant target into your local ~/.dbt/profiles.yml (never commit
+# real credentials). `dev` runs against your own BigQuery project with a
+# service-account key on disk; `ci` is what GitHub Actions uses, authenticating
+# via GOOGLE_APPLICATION_CREDENTIALS written from the GCP_SA_KEY repo secret.
+
+tfnsw_transit_pulse:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: analytics
+      location: "{{ env_var('BQ_LOCATION', 'australia-southeast1') }}"
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      threads: 4
+
+    ci:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: ci
+      location: "{{ env_var('BQ_LOCATION', 'australia-southeast1') }}"
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      threads: 4

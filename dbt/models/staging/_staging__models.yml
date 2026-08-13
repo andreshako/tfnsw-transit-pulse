@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_trip_updates
+    description: >
+      One row per (trip_id, stop_id, service_date): the last-observed delay
+      for that stop visit, deduped from the raw feed's repeated polls.
+    columns:
+      - name: trip_id
+        description: GTFS trip identifier.
+        tests:
+          - not_null
+      - name: route_id
+        description: GTFS route identifier.
+        tests:
+          - not_null
+      - name: service_date
+        description: GTFS service date, derived from the trip's start_date.
+        tests:
+          - not_null
+      - name: schedule_relationship
+        description: GTFS-RT StopTimeUpdate schedule_relationship enum.
+        tests:
+          - accepted_values:
+              values: ["SCHEDULED", "SKIPPED", "NO_DATA", "UNSCHEDULED"]

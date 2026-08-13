@@ -1,0 +1,26 @@
+name: "tfnsw_transit_pulse"
+version: "1.0.0"
+config-version: 2
+
+profile: "tfnsw_transit_pulse"
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  tfnsw_transit_pulse:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  tfnsw_transit_pulse:
+    +schema: seed
