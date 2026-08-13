@@ -24,6 +24,9 @@ dbt/target/
 dbt/logs/
 dbt/dbt_packages/
 dbt/profiles.yml
+dbt/package-lock.yml
+dbt/package-lock.concurrent-update-lock
+dbt/.user.yml
 
 # dagster
 orchestration/.dagster_home/
