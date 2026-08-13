@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: fct_line_otp_daily
+    description: >
+      Daily on-time-running performance per Sydney Trains line. Grain is one
+      row per (service_date, route_short_name). "On time" follows TfNSW's
+      own OTR definition: within 5 minutes (300 seconds) of the scheduled
+      arrival, falling back to departure delay when arrival wasn't reported.
+      Incremental, insert_overwrite on service_date with a 2-day lookback.
+    columns:
+      - name: service_date
+        description: GTFS service date this row summarizes.
+      - name: route_short_name
+        description: "Public-facing Sydney Trains line code, e.g. T1."
+      - name: route_long_name
+        description: Full line name, carried through from the route seed.
+      - name: total_stop_events
+        description: Count of deduped stop visits observed for this line/day.
+      - name: on_time_stop_events
+        description: Stop visits with an observed delay within 5 minutes.
+      - name: late_stop_events
+        description: Stop visits with an observed delay beyond 5 minutes.
+      - name: avg_delay_minutes
+        description: Mean delay in minutes across stop visits with delay data.
+      - name: pct_on_time
+        description: on_time_stop_events / (on_time_stop_events + late_stop_events).
