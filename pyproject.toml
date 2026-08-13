@@ -2,7 +2,7 @@
 name = "tfnsw-transit-pulse"
 version = "0.1.0"
 description = "Sydney Trains on-time-running analytics pipeline: GTFS-RT -> BigQuery -> dbt -> Dagster"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "dagster>=1.8",
     "dagster-dbt>=0.24",
