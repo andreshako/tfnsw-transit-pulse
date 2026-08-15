@@ -54,6 +54,13 @@ orchestration/       Dagster: asset graph (loaded from the dbt manifest)
 - **On-time definition:** within 5 minutes (300 seconds) of scheduled
   arrival, matching TfNSW's own published OTR threshold. Falls back to
   departure delay when a stop's arrival delay wasn't reported.
+- **Service date:** prefers the trip's GTFS `start_date` when populated;
+  in practice, on TfNSW's real Sydney Trains v2 feed, that field has been
+  empty on every trip observed so far, so `service_date` falls back to the
+  Sydney-local calendar date of the poll itself. This means a trip polled
+  just after midnight could in principle land on the wrong service day —
+  a real limitation of the fallback, not something the pipeline detects
+  or corrects.
 - **Incremental strategy:** `insert_overwrite`, partitioned on
   `service_date`, with a 2-day reprocessing window on every run — the
   fact table is fully re-derivable per partition, so overwriting whole
@@ -162,3 +169,7 @@ dagster dev -m orchestration.definitions
 - Backfill history from before ingestion started — TfNSW's GTFS-Realtime
   feed is not queryable historically, so the fact table's history starts
   the day ingestion first ran.
+- Guarantee a trip's `service_date` is always exactly correct — it falls
+  back to the poll's own calendar date when TfNSW's feed doesn't supply
+  one (which has been every trip observed so far), so a trip polled just
+  after midnight could in principle be attributed to the wrong day.

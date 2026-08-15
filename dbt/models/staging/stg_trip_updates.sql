@@ -12,21 +12,28 @@ renamed as (
         route_id,
         stop_id,
         stop_sequence,
-        parse_date('%Y%m%d', start_date) as service_date,
+        -- TfNSW's real Sydney Trains v2 feed sets start_date on every
+        -- observed trip so far, but always to "" -- not occasionally
+        -- omitted, universally empty (confirmed against a full live poll,
+        -- not assumed). Prefer it when it's ever actually populated;
+        -- otherwise fall back to the Sydney-local calendar date of the
+        -- poll itself. This is a real trade-off, not a free win: a trip
+        -- polled just after midnight Sydney time could in principle still
+        -- belong to the previous service day, and a poll-time fallback
+        -- can't know that the way a real start_date would have. Documented
+        -- as a limitation in the README rather than silently assumed away.
+        coalesce(
+            safe.parse_date('%Y%m%d', nullif(start_date, '')),
+            date(poll_timestamp, 'Australia/Sydney')
+        ) as service_date,
         arrival_delay_seconds,
         departure_delay_seconds,
         schedule_relationship,
         poll_timestamp
 
     from source
-    -- start_date is optional on the GTFS-RT trip descriptor: TfNSW omits it
-    -- for some real trips (confirmed against live data, not hypothetical),
-    -- and an unset optional string comes through as "" rather than NULL --
-    -- guard against both, or PARSE_DATE errors out on the empty string.
     where trip_id is not null
       and route_id is not null
-      and start_date is not null
-      and start_date != ''
 
 ),
 

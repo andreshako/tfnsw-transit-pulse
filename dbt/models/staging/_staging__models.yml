@@ -15,7 +15,11 @@ models:
         tests:
           - not_null
       - name: service_date
-        description: GTFS service date, derived from the trip's start_date.
+        description: >
+          GTFS service date. Prefers the trip's start_date when populated;
+          TfNSW's real feed sets it to an empty string on every observed
+          trip so far, so this falls back to the Sydney-local calendar date
+          of the poll itself in practice.
         tests:
           - not_null
       - name: schedule_relationship
