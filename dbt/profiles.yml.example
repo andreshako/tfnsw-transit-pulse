@@ -1,7 +1,11 @@
 # Copy the relevant target into your local ~/.dbt/profiles.yml (never commit
-# real credentials). `dev` runs against your own BigQuery project with a
-# service-account key on disk; `ci` is what GitHub Actions uses, authenticating
-# via GOOGLE_APPLICATION_CREDENTIALS written from the GCP_SA_KEY repo secret.
+# real credentials). `dev` is what both local dbt runs AND the Dagster
+# daily_mart_schedule use in production -- it authenticates as the
+# tfnsw-dbt-runner service account (read on raw, write on staging/marts/seed),
+# deliberately not the ingestion service account or your own login, so the
+# schedule can run fully unattended without borrowing another identity's
+# credentials. `ci` is what GitHub Actions uses, authenticating via
+# GOOGLE_APPLICATION_CREDENTIALS written from the GCP_SA_KEY repo secret.
 
 tfnsw_transit_pulse:
   target: dev
@@ -12,7 +16,7 @@ tfnsw_transit_pulse:
       project: "{{ env_var('GCP_PROJECT_ID') }}"
       dataset: analytics
       location: "{{ env_var('BQ_LOCATION', 'australia-southeast1') }}"
-      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      keyfile: "{{ env_var('DBT_KEYFILE') }}"
       threads: 4
 
     ci:

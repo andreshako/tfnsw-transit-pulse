@@ -78,20 +78,33 @@ a v2 feed — confirm the exact URL on your dashboard and set it as
 
 ### 2. GCP project and service accounts
 
-You'll need a GCP project with BigQuery enabled, and two service accounts
-(least-privilege, not one shared account):
+You'll need a GCP project with BigQuery enabled, and three service accounts
+(least-privilege, not one shared account — each is a separate trust
+boundary, so a leaked credential in one place can't reach what the others
+touch):
 
 | Service account | Roles | Used by |
 |---|---|---|
 | ingestion | BigQuery Data Editor + BigQuery Job User, scoped to the `raw` dataset | `ingestion/*.py`, locally or wherever ingestion runs |
+| dbt-runner | BigQuery Data Viewer on `raw`, Data Editor on `staging`/`marts`/`seed`, Job User project-wide | dbt's `dev` profile target — both local `dbt build` and Dagster's `daily_mart_schedule` in production |
 | ci | BigQuery Data Editor + BigQuery Job User, scoped to a dedicated `ci` dataset | GitHub Actions |
 
-Create the `raw` dataset via `python -m ingestion.bootstrap_bigquery` (idempotent —
-safe to re-run). Create the `ci` dataset once by hand; CI writes fixture
-data into it on every run but doesn't create the dataset itself.
+`dbt-runner` is deliberately not the same identity as `ingestion`: ingestion
+only ever writes to `raw`, dbt only ever reads `raw` and writes the
+transformed layers, and giving the *same* account both would mean a single
+leaked key could do both. It's also not your own personal login — using a
+dedicated service account here (rather than your own gcloud credentials)
+is what lets the Dagster schedule actually run dbt completely unattended.
 
-For local dev, download a JSON key for the ingestion service account and
-point `GOOGLE_APPLICATION_CREDENTIALS` at it in `.env`. For CI, paste that
+Create the `raw`, `staging`, `marts`, and `seed` datasets (`raw` via
+`python -m ingestion.bootstrap_bigquery`, idempotent; the other three by
+hand, e.g. `bq mk --dataset --location=<your location> <project>:staging`).
+Create the `ci` dataset once by hand too; CI writes fixture data into it on
+every run but doesn't create the dataset itself.
+
+For local dev, download JSON keys for the `ingestion` and `dbt-runner`
+service accounts and point `GOOGLE_APPLICATION_CREDENTIALS` and
+`DBT_KEYFILE` at them respectively in `.env`. For CI, paste the `ci`
 service account's JSON key into a GitHub repo secret named `GCP_SA_KEY`,
 and add your project ID as a secret named `GCP_PROJECT_ID`.
 
@@ -103,7 +116,7 @@ Requires Python 3.11 or 3.12 (Dagster/dbt don't yet support 3.13+).
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env   # fill in TFNSW_API_KEY, GCP_PROJECT_ID, GOOGLE_APPLICATION_CREDENTIALS
+cp .env.example .env   # fill in TFNSW_API_KEY, GCP_PROJECT_ID, GOOGLE_APPLICATION_CREDENTIALS, DBT_KEYFILE
 cp dbt/profiles.yml.example dbt/profiles.yml
 python -m ingestion.bootstrap_bigquery
 ```

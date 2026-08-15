@@ -16,4 +16,7 @@ DBT_PROJECT_DIR = Path(__file__).parent.parent / "dbt"
 dbt_project = DbtProject(project_dir=os.fspath(DBT_PROJECT_DIR))
 dbt_project.prepare_if_dev()
 
-dbt_resource = DbtCliResource(project_dir=os.fspath(DBT_PROJECT_DIR))
+dbt_resource = DbtCliResource(
+    project_dir=os.fspath(DBT_PROJECT_DIR),
+    profiles_dir=os.fspath(DBT_PROJECT_DIR),
+)
