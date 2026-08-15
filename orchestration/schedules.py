@@ -12,6 +12,7 @@ ingestion_schedule = dg.ScheduleDefinition(
     cron_schedule="*/10 5-23 * * *",
     execution_timezone="Australia/Sydney",
     target=dg.AssetSelection.assets(raw_trip_updates_snapshot),
+    default_status=dg.DefaultScheduleStatus.RUNNING,
 )
 
 daily_mart_schedule = dg.ScheduleDefinition(
@@ -19,4 +20,5 @@ daily_mart_schedule = dg.ScheduleDefinition(
     cron_schedule="0 4 * * *",
     execution_timezone="Australia/Sydney",
     target=dg.AssetSelection.assets(tfnsw_dbt_assets),
+    default_status=dg.DefaultScheduleStatus.RUNNING,
 )
