@@ -4,11 +4,17 @@ seeds:
   - name: seed_sydney_trains_routes
     description: >
       route_id -> line label for Sydney Trains, extracted from the
-      route_id/route_short_name/route_long_name columns of TfNSW's public
-      "Timetables Complete GTFS" static bundle (agency_id x0001), filtered
-      to Sydney Trains and manually snapshotted here. Route structure
-      changes rarely; refresh by re-downloading routes.txt and re-filtering
-      rather than by an automated daily pipeline.
+      routes.txt of TfNSW's "Public Transport - Timetables - For Realtime"
+      bundle (api.transport.nsw.gov.au/v1/gtfs/schedule/sydneytrains),
+      filtered to agency_id = "SydneyTrains" with a non-blank
+      route_short_name, and manually snapshotted here. This is deliberately
+      NOT the "Timetables Complete GTFS" bundle: that bundle's route_ids
+      (e.g. "2-T1-N-sj2-1") are a completely different numbering scheme
+      that never appears on the realtime feed at all -- the realtime feed
+      uses this bundle's route_ids (e.g. "WST_1a", "NTH_1a"), confirmed by
+      cross-checking against real ingested rows. Route structure changes
+      rarely; refresh by re-downloading routes.txt and re-filtering rather
+      than by an automated daily pipeline.
     columns:
       - name: route_id
         description: GTFS route identifier, matches route_id on the realtime feed.
