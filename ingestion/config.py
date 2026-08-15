@@ -39,8 +39,8 @@ def load_config() -> Config:
 
     return Config(
         tfnsw_api_key=api_key,
-        trip_updates_url=os.environ.get("TFNSW_TRIP_UPDATES_URL", DEFAULT_TRIP_UPDATES_URL),
+        trip_updates_url=os.environ.get("TFNSW_TRIP_UPDATES_URL") or DEFAULT_TRIP_UPDATES_URL,
         gcp_project_id=project_id,
-        bq_raw_dataset=os.environ.get("BQ_RAW_DATASET", "raw"),
-        bq_location=os.environ.get("BQ_LOCATION", "australia-southeast1"),
+        bq_raw_dataset=os.environ.get("BQ_RAW_DATASET") or "raw",
+        bq_location=os.environ.get("BQ_LOCATION") or "australia-southeast1",
     )
