@@ -7,12 +7,18 @@ seeds:
       table (which is populated by ingestion/load_raw.py, not dbt, in
       dev/prod). Named to match the source table exactly so stg_trip_updates
       resolves against it when BQ_RAW_DATASET points at the ci dataset.
+      Route_ids (WST_1a, NSN_1a, IWL_1c) are real values from
+      seed_sydney_trains_routes, not placeholders -- an earlier version of
+      this fixture used invented route_ids that happened to match an
+      earlier, wrong version of the seed, which let a real seed-data bug
+      pass CI silently for several runs (see LEARNING_NOTES section 12).
       Covers: a duplicate poll of the same stop (dedup), a null
       arrival_delay_seconds with a departure_delay_seconds fallback, an
-      on-time and a late row, a route_id absent from the route seed (should
-      be dropped by the mart's inner join), and a null trip_id (should be
-      dropped by staging's not_null filter). Not run in dev/prod -- CI
-      selects it explicitly by name rather than relying on a bare `dbt seed`.
+      on-time and a late row, a real out-of-scope route_id (CCN_1a, an NSW
+      Trains regional line -- should be dropped by the mart's inner join),
+      and a null trip_id (should be dropped by staging's not_null filter).
+      Not run in dev/prod -- CI selects it explicitly by name rather than
+      relying on a bare `dbt seed`.
     config:
       column_types:
         # Every column typed explicitly to match ingestion/bootstrap_bigquery.py's
