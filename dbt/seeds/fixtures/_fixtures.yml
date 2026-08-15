@@ -13,3 +13,14 @@ seeds:
       be dropped by the mart's inner join), and a null trip_id (should be
       dropped by staging's not_null filter). Not run in dev/prod -- CI
       selects it explicitly by name rather than relying on a bare `dbt seed`.
+    config:
+      column_types:
+        # Explicit, matching ingestion/bootstrap_bigquery.py's real schema --
+        # left to auto-detection, BigQuery infers these timestamp-with-offset
+        # strings as the timezone-naive DATETIME type instead of TIMESTAMP,
+        # which then rejects the "+00:00" suffix and fails the whole load.
+        poll_timestamp: TIMESTAMP
+        feed_timestamp: TIMESTAMP
+        stop_sequence: INT64
+        arrival_delay_seconds: INT64
+        departure_delay_seconds: INT64
