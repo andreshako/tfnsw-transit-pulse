@@ -23,7 +23,7 @@ class TripStopUpdate:
     feed_timestamp: int
     trip_id: str
     route_id: str
-    start_date: str
+    start_date: str | None
     stop_id: str
     stop_sequence: int
     arrival_delay_seconds: int | None
@@ -71,7 +71,7 @@ def parse_trip_updates(feed: gtfs_realtime_pb2.FeedMessage) -> list[TripStopUpda
                     feed_timestamp=feed.header.timestamp,
                     trip_id=trip.trip_id,
                     route_id=trip.route_id,
-                    start_date=trip.start_date,
+                    start_date=trip.start_date if trip.HasField("start_date") else None,
                     stop_id=stop_time_update.stop_id,
                     stop_sequence=stop_time_update.stop_sequence,
                     arrival_delay_seconds=arrival_delay,

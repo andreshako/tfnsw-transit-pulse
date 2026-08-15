@@ -19,9 +19,14 @@ renamed as (
         poll_timestamp
 
     from source
+    -- start_date is optional on the GTFS-RT trip descriptor: TfNSW omits it
+    -- for some real trips (confirmed against live data, not hypothetical),
+    -- and an unset optional string comes through as "" rather than NULL --
+    -- guard against both, or PARSE_DATE errors out on the empty string.
     where trip_id is not null
       and route_id is not null
       and start_date is not null
+      and start_date != ''
 
 ),
 
