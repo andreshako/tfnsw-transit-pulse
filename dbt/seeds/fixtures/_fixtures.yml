@@ -15,12 +15,21 @@ seeds:
       selects it explicitly by name rather than relying on a bare `dbt seed`.
     config:
       column_types:
-        # Explicit, matching ingestion/bootstrap_bigquery.py's real schema --
-        # left to auto-detection, BigQuery infers these timestamp-with-offset
-        # strings as the timezone-naive DATETIME type instead of TIMESTAMP,
-        # which then rejects the "+00:00" suffix and fails the whole load.
-        poll_timestamp: TIMESTAMP
-        feed_timestamp: TIMESTAMP
+        # Every column typed explicitly to match ingestion/bootstrap_bigquery.py's
+        # real schema exactly, rather than trusting BigQuery's CSV
+        # auto-detection column by column. Two columns already burned this:
+        # poll_timestamp/feed_timestamp got inferred as DATETIME (rejecting
+        # the "+00:00" offset), and start_date -- all-digit values like
+        # "20260105" -- got inferred as INT64, breaking PARSE_DATE which
+        # needs a STRING. Typing everything up front avoids finding the
+        # next one the same way, one failed CI run at a time.
+        trip_id: STRING
+        route_id: STRING
+        start_date: STRING
+        stop_id: STRING
         stop_sequence: INT64
         arrival_delay_seconds: INT64
         departure_delay_seconds: INT64
+        schedule_relationship: STRING
+        poll_timestamp: TIMESTAMP
+        feed_timestamp: TIMESTAMP
