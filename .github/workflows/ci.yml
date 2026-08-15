@@ -34,10 +34,27 @@ jobs:
         working-directory: dbt
         run: dbt deps
 
+      # Seeds first, as their own step: a model's source() call resolves to
+      # a hardcoded relation name at compile time, so dbt has no way to know
+      # the trip_updates_snapshot seed and the trip_updates_snapshot source
+      # are "the same table" -- there's no DAG edge between them. Run
+      # together under one `dbt build`, the seed load and stg_trip_updates
+      # race, and stg_trip_updates loses about half the time (found via a
+      # real CI run, not anticipated up front).
+      - name: dbt seed fixture data
+        working-directory: dbt
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          BQ_LOCATION: australia-southeast1
+          BQ_RAW_DATASET: ci
+        run: >
+          dbt seed --target ci --full-refresh
+          --select seed_sydney_trains_routes trip_updates_snapshot
+
       # --full-refresh: every CI run should be self-contained and
       # deterministic against the fixture data, not dependent on whatever
       # partitions a previous run happened to leave in the ci dataset.
-      - name: dbt build against fixture data
+      - name: dbt build models and tests
         working-directory: dbt
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -45,4 +62,4 @@ jobs:
           BQ_RAW_DATASET: ci
         run: >
           dbt build --target ci --full-refresh
-          --select seed_sydney_trains_routes trip_updates_snapshot stg_trip_updates fct_line_otp_daily
+          --select stg_trip_updates fct_line_otp_daily
